@@ -1,0 +1,87 @@
+[project]
+name = "credit-track"
+version = "0.1.0"
+description = "Loan and payment tracking API with outstanding balance calculation."
+authors = [
+    {name = "WillamesCampos",email = "willwjccampos@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "django (>=6.0,<7.0)",
+    "djangorestframework (>=3.16.1,<4.0.0)",
+    "celery (>=5.6.0,<6.0.0)",
+    "djangorestframework-simplejwt (>=5.5.1,<6.0.0)",
+    "python-dotenv (>=1.2.1,<2.0.0)"
+]
+
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.14.10"
+black = "^25.12.0"
+factory-boy = "^3.3.3"
+drf-spectacular = "^0.29.0"
+pytest = "^9.0.2"
+pytest-django = "^4.11.1"
+pytest-cov = "^7.0.0"
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE="credit_track.test_settings"
+pythonpath="."
+python_files = ["test_*.py", "tests.py"]
+
+#where to find tests
+testpaths = ["apps"]
+
+# command line options
+addopts = [
+    "--ignore=.git",
+    "--ignore=__pycache__",
+    "--cov=.",
+    "--cov-report=term-missing",
+    "--cov-fail-under=75",
+    "--cov-report=html:htmlcov"
+]
+
+[tool.coverage.run]
+omit = [
+    "manage.py",
+    "*/__init__.py",
+    "*/migrations/*",
+    "*/management/*",
+    "conftest.py",
+    "*/settings.py",
+    "*/admin.py",
+    "*/wsgi.py",
+    "*/asgi.py",
+    "credit_track/test_settings.py",
+    "*/test",
+    "*/tests/*",
+    "*/tests.py",
+]
+
+[tool.ruff]
+line-length=79
+extend-exclude = [
+    "migrations",
+    "manage.py",
+    "settings.py",
+    "test_settings.py"
+]
+
+[tool.ruff.lint]
+preview = true
+ignore = ['PT001', 'PT023', 'PLR0913', 'PLR6301', 'PLR0904', 'PLR2004']
+select = [
+    'I', # Isort - Checagem de ordenação de imports em ordem alfabética
+    'F', # Pyflakes - Procura por alguns erros em relação a boas práticas de código
+    'E', # Erros pycodestyle - Erros de estilo de código
+    'W', # Avisos pycodestyle - Avisos de coisas não recomendadas no estilo de código
+    'PL', # Pylint - Como o F, também procura por erros em relação a boas práticas de código
+    'PT' # flake8-pytest - Checagem de boas práticas do Pytest
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
