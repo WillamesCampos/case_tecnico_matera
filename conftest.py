@@ -4,6 +4,7 @@ from rest_framework.test import APIClient
 
 User = get_user_model()
 
+
 @pytest.fixture
 def client():
     """DRF API Client"""
