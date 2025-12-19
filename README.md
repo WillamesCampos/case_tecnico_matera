@@ -2,7 +2,7 @@
 
 Usando [Django](https://www.djangoproject.com/) e [Django REST framework](https://www.django-rest-framework.org/) desenvolva uma API REST que permita usuários gerenciar empréstimos.
 
-## Crtérios de aceite
+## Critérios de aceite
 * Usuários devem ser capazes de inserir empréstimos e seus respectivos pagamentos
 * Usuários devem ser capazer de visualizar seus empréstimos e pagamentos
 * Usuários devem ser capazes de visualizar o [saldo devedor](https://duckduckgo.com/?q=saldo+devedor) de cada um dos seus empréstimos
