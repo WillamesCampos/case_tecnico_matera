@@ -50,6 +50,8 @@ THIRD_PARTY_APPS = [
 
 PROJECT_APPS = [
     "apps.core",
+    "apps.loans",
+    "apps.payments",
 ]
 
 INSTALLED_APPS.extend(THIRD_PARTY_APPS)

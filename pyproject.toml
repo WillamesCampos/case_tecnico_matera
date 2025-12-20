@@ -1,6 +1,6 @@
 [project]
 name = "credit-track"
-version = "0.1.0"
+version = "0.2.0"
 description = "Loan and payment tracking API with outstanding balance calculation."
 authors = [
     {name = "WillamesCampos",email = "willwjccampos@gmail.com"}
