@@ -18,12 +18,10 @@ class PaymentSerializer(serializers.ModelSerializer, AuditSerializerMixin):
             "updated_by",
         ]
 
-    def validate_payment_date(self, value):
-        if value < self.instance.loan.request_date:
-            raise serializers.ValidationError(
-                "Payment date must be after loan request date"
-            )
-        return value
+    # TODO: Add validation for payment date to be after loan request date
+    # TODO: Add validation for payment value to be greater than 0
+    # TODO: Add validation for payment value to be less than the loan amount
+    # remaining
 
 
 class PaymentListSerializer(serializers.ModelSerializer):

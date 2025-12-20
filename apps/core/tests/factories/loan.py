@@ -1,15 +1,15 @@
 import factory
 
+from apps.core.tests.factories.user import UserFactory
 from apps.loans.models import Loan
 from credit_track.test_settings import FAKER_GENERATOR
-from tests.factories.user import UserFactory
 
 
 class LoanFactory(factory.django.DjangoModelFactory):
     owner = factory.SubFactory(UserFactory)
-    bank = factory.LazyAttribute(lambda bank: FAKER_GENERATOR.company())
+    bank = factory.LazyAttribute(lambda obj: FAKER_GENERATOR.company())
     amount = factory.LazyAttribute(
-        lambda amount: FAKER_GENERATOR.pydecimal(
+        lambda obj: FAKER_GENERATOR.pydecimal(
             left_digits=6,
             right_digits=2,
             positive=True,
@@ -18,7 +18,7 @@ class LoanFactory(factory.django.DjangoModelFactory):
         )
     )
     interest_rate = factory.LazyAttribute(
-        lambda interest_rate: FAKER_GENERATOR.pydecimal(
+        lambda obj: FAKER_GENERATOR.pydecimal(
             left_digits=2,
             right_digits=2,
             positive=True,
@@ -34,8 +34,8 @@ class LoanFactory(factory.django.DjangoModelFactory):
     request_ip = factory.LazyAttribute(
         lambda request_ip: FAKER_GENERATOR.ipv4()
     )
-    created_by = factory.LazyAttribute(lambda created_by: created_by.owner)
-    updated_by = factory.LazyAttribute(lambda updated_by: updated_by.owner)
+    created_by = factory.LazyAttribute(lambda obj: obj.owner)
+    updated_by = factory.LazyAttribute(lambda obj: obj.owner)
 
     class Meta:
         model = Loan

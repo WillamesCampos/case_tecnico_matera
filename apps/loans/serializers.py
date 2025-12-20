@@ -8,7 +8,7 @@ from apps.loans.models import Loan
 
 
 class LoanSerializer(serializers.ModelSerializer, AuditSerializerMixin):
-    owner = UserSerializer()
+    owner = serializers.HiddenField(default=serializers.CurrentUserDefault())
     total_paid = serializers.SerializerMethodField()
     remaining_balance = serializers.SerializerMethodField()
     # TODO: total_paid field must be calculated based on the payments
@@ -49,3 +49,7 @@ class LoanSerializer(serializers.ModelSerializer, AuditSerializerMixin):
             "REMOTE_ADDR"
         )
         return super().create(validated_data)
+
+
+class LoanListSerializer(LoanSerializer):
+    owner = UserSerializer()

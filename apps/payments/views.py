@@ -5,5 +5,7 @@ from apps.payments.serializers import PaymentSerializer
 
 
 class PaymentViewSet(viewsets.ModelViewSet):
-    queryset = Payment.objects.all()
     serializer_class = PaymentSerializer
+
+    def get_queryset(self):
+        return Payment.objects.filter(loan__owner=self.request.user)
