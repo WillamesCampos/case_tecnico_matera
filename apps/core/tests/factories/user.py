@@ -7,11 +7,8 @@ User = get_user_model()
 
 
 class UserFactory(factory.django.DjangoModelFactory):
-    username = factory.LazyAttribute(
-        lambda username: FAKER_GENERATOR.user_name()
-    )
-    email = factory.LazyAttribute(lambda email: FAKER_GENERATOR.email())
-    password = factory.PostGenerationMethodCall("set_password")
+    username = factory.LazyAttribute(lambda obj: FAKER_GENERATOR.user_name())
+    email = factory.LazyAttribute(lambda obj: FAKER_GENERATOR.email())
 
     @factory.post_generation
     def set_password(self, create, extracted, **kwargs):
