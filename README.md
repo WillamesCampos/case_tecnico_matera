@@ -2,6 +2,9 @@
 
 Usando [Django](https://www.djangoproject.com/) e [Django REST framework](https://www.django-rest-framework.org/) desenvolva uma API REST que permita usuários gerenciar empréstimos.
 
+# README do projeto
+Consulte o README do projeto [Credit Track](README_project.md)
+
 ## Critérios de aceite
 * Usuários devem ser capazes de inserir empréstimos e seus respectivos pagamentos
 * Usuários devem ser capazer de visualizar seus empréstimos e pagamentos
