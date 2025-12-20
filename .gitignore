@@ -1,6 +1,7 @@
 db.sqlite3
 .coverage
 PLAN.md
+DEVELOPER_NOTES.md
 htmlcov/
 .env
 .venv

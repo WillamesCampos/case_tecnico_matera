@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+## [0.2.0] - Step 2 - Domain Models
+
+### Added
+- `Loan` model with required fields and database constraints
+- `Payment` model with foreign key to Loan
+- Database indexes for query optimization
+- Database constraints for data integrity (amount, interest_rate, payment_value validations)
+- Initial migrations
+- Test factories (UserFactory, LoanFactory, PaymentFactory)
+
 ## [0.1.0] - Step 1 - Foundation Setup
 
 ### Added
