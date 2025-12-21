@@ -2,6 +2,57 @@
 
 ## [Unreleased]
 
+## [0.4.0] - Step 3 - Business Rules & Comprehensive Testing
+
+### Added
+- **Business Rules Layer**
+  - `InterestCalculatorService`: Calculates compound interest (juros compostos)
+  - `PaymentAggregatorService`: Aggregates payment amounts (optimized with aggregate queries)
+  - `OutstandingBalanceCalculatorService`: Calculates saldo devedor (principal + interest - payments)
+  - `PaymentValidatorService`: Validates payment business rules (date, value, outstanding balance)
+  - `CalculateLoanOutstandingBalanceUseCase`: Orchestrates outstanding balance calculation
+  - `ValidatePaymentUseCase`: Orchestrates payment validation
+
+- **Outstanding Balance Calculation**
+  - Compound interest calculation (monthly rate)
+  - Automatic calculation of months between dates using `relativedelta`
+  - Integration in `LoanSerializer` (retrieve only, not in list for performance)
+  - Returns `total_paid` and `remaining_balance` fields
+
+- **Payment Validation**
+  - Validates payment date >= loan request date
+  - Validates payment date <= today (no future payments)
+  - Validates payment value > 0
+  - Validates payment value <= outstanding balance
+  - Validates loan ownership
+
+- **Data Protection**
+  - Critical loan fields (`amount`, `interest_rate`, `owner`, `bank`) become read-only after payments exist
+  - Prevents data inconsistency in financial calculations
+
+- **Comprehensive Testing**
+  - Model constraint tests (`test_models.py`): Database-level validations
+  - Serializer tests (`test_serializers.py`): Field validation and serialization
+  - Service tests: Isolated business rule tests for each service
+  - Use case tests: Integration tests for use cases
+  - Extended view tests: 22+ integration tests covering all scenarios (validations, isolation, edge cases)
+  - Test coverage: Models, serializers, services, use cases, and views
+
+- **Dependencies**
+  - `python-dateutil`: For date calculations (`relativedelta`)
+  - `freezegun`: For time control in tests
+
+### Changed
+- `LoanSerializer`: Added dynamic `read_only` fields management for critical fields
+- `PaymentSerializer`: Enhanced validation to handle update scenarios correctly
+- `OutstandingBalanceCalculatorService`: Now calculates months using `relativedelta` for accuracy
+- Test structure: Refactored to follow AAA pattern, one scenario per test
+
+### Fixed
+- Payment value validation now happens at serializer level (prevents IntegrityError)
+- Update payment validation now correctly uses instance values when not provided in request
+- Decimal precision issues in compound interest tests
+
 ## [0.3.0] - Step 2 - Domain Models & API Implementation
 
 ### Added
