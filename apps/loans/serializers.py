@@ -7,6 +7,7 @@ from apps.core.serializers.mixins.audit_serializer_mixin import (
 )
 from apps.core.serializers.user_serializer import UserSerializer
 from apps.loans.models import Loan
+from apps.loans.services.iof_calculator_svc import IOFCalculatorService
 from apps.loans.services.payment_aggregator_svc import PaymentAggregatorService
 from apps.loans.use_cases.calculate_loan_outstanding_balance_use_case import (
     CalculateLoanOutstandingBalanceUseCase,
@@ -17,6 +18,7 @@ class LoanSerializer(serializers.ModelSerializer, AuditSerializerMixin):
     owner = serializers.HiddenField(default=serializers.CurrentUserDefault())
     total_paid = serializers.SerializerMethodField()
     remaining_balance = serializers.SerializerMethodField()
+    iof = serializers.SerializerMethodField()
 
     critical_fields = ["owner", "bank", "amount", "interest_rate"]
 
@@ -39,6 +41,7 @@ class LoanSerializer(serializers.ModelSerializer, AuditSerializerMixin):
         self.outstanding_balance_use_case = (
             CalculateLoanOutstandingBalanceUseCase()
         )
+        self.iof_calculator = IOFCalculatorService()
 
         self._manage_critical_fields()
 
@@ -50,6 +53,11 @@ class LoanSerializer(serializers.ModelSerializer, AuditSerializerMixin):
         """Calculate outstanding balance (saldo devedor) for the loan."""
         balance = self.outstanding_balance_use_case.execute(obj)
         return float(balance)
+
+    def get_iof(self, obj):
+        """Calculate total IOF (fixed + daily) for the loan."""
+        total_iof = self.iof_calculator.calculate_total_iof(obj)
+        return float(total_iof)
 
     def get_request_ip(self):
         """Get the request IP from the context."""

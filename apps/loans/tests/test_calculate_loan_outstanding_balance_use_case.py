@@ -79,5 +79,16 @@ def test_execute_returns_calculator_result(use_case):
     result = use_case.execute(loan)
 
     # Assert
-    # Should calculate correctly: 10000 * (1.025)^2 = 10506.25
-    assert result == Decimal("10506.25")
+    # Should calculate correctly:
+    # (10000 * (1.025)^2) + IOF = 10506.25 + 87.20 = 10593.45
+    # IOF: Fixed (38.00) + Daily (60 days * 0.0082% = 49.20) = 87.20
+    amount_with_interest = (
+        Decimal("10000.00") * (Decimal("1") + Decimal("0.025")) ** 2
+    )
+    iof_fixed = Decimal("10000.00") * Decimal("0.0038")  # 38.00
+    iof_daily = (
+        Decimal("10000.00") * Decimal("0.000082") * Decimal("60")
+    )  # 49.20
+    total_iof = iof_fixed + iof_daily
+    expected = amount_with_interest + total_iof
+    assert result == expected

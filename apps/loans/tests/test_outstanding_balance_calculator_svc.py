@@ -35,9 +35,18 @@ def test_calculate_outstanding_balance_no_payments(
 
     # Assert
     # 2 months of interest: 10000 * (1.025)^2 = 10506.25
-    expected = Decimal("10000.00") * (Decimal("1") + Decimal("0.025")) ** 2
+    # IOF: Fixed (38.00) + Daily (60 days * 0.0082% = 49.20) = 87.20
+    # Total: 10506.25 + 87.20 = 10593.45
+    amount_with_interest = (
+        Decimal("10000.00") * (Decimal("1") + Decimal("0.025")) ** 2
+    )
+    iof_fixed = Decimal("10000.00") * Decimal("0.0038")  # 38.00
+    iof_daily = (
+        Decimal("10000.00") * Decimal("0.000082") * Decimal("60")
+    )  # 49.20
+    total_iof = iof_fixed + iof_daily
+    expected = amount_with_interest + total_iof
     assert result == expected
-    assert result == Decimal("10506.25")
 
 
 @pytest.mark.django_db
@@ -59,14 +68,19 @@ def test_calculate_outstanding_balance_with_payments(
 
     # Assert
     # Amount with interest: 10000 * (1.025)^2 = 10506.25
+    # IOF: Fixed (38.00) + Daily (60 days * 0.0082% = 49.20) = 87.20
     # Total paid: 2000.00
-    # Outstanding: 10506.25 - 2000.00 = 8506.25
+    # Outstanding: 10506.25 + 87.20 - 2000.00 = 8593.45
     amount_with_interest = (
         Decimal("10000.00") * (Decimal("1") + Decimal("0.025")) ** 2
     )
-    expected = amount_with_interest - Decimal("2000.00")
+    iof_fixed = Decimal("10000.00") * Decimal("0.0038")  # 38.00
+    iof_daily = (
+        Decimal("10000.00") * Decimal("0.000082") * Decimal("60")
+    )  # 49.20
+    total_iof = iof_fixed + iof_daily
+    expected = amount_with_interest + total_iof - Decimal("2000.00")
     assert result == expected
-    assert result == Decimal("8506.25")
 
 
 @pytest.mark.django_db
@@ -109,7 +123,15 @@ def test_calculate_outstanding_balance_same_month_returns_principal(
 
     # Assert
     # Same month = 0 months, so no interest
-    assert result == Decimal("10000.00")
+    # IOF: Fixed (38.00) + Daily (14 days * 0.0082% = 11.48) = 49.48
+    # Total: 10000.00 + 49.48 = 10049.48
+    iof_fixed = Decimal("10000.00") * Decimal("0.0038")  # 38.00
+    iof_daily = (
+        Decimal("10000.00") * Decimal("0.000082") * Decimal("14")
+    )  # 11.48
+    total_iof = iof_fixed + iof_daily
+    expected = Decimal("10000.00") + total_iof
+    assert result == expected
 
 
 @pytest.mark.django_db
@@ -130,7 +152,17 @@ def test_calculate_outstanding_balance_with_reference_date(
 
     # Assert
     # 3 months of interest: 10000 * (1.025)^3 = 10768.90625...
-    expected = Decimal("10000.00") * (Decimal("1") + Decimal("0.025")) ** 3
+    # IOF: Fixed (38.00) + Daily (91 days * 0.0082% = 74.62) = 112.62
+    # Total: 10768.90625 + 112.62 = 10881.52625
+    amount_with_interest = (
+        Decimal("10000.00") * (Decimal("1") + Decimal("0.025")) ** 3
+    )
+    iof_fixed = Decimal("10000.00") * Decimal("0.0038")  # 38.00
+    iof_daily = (
+        Decimal("10000.00") * Decimal("0.000082") * Decimal("91")
+    )  # 74.62
+    total_iof = iof_fixed + iof_daily
+    expected = amount_with_interest + total_iof
     assert result == expected
 
 

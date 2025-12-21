@@ -218,8 +218,10 @@ class TestLoanViews(BaseTestCase):
         assert response.status_code == 200
         assert "total_paid" in response.data
         assert "remaining_balance" in response.data
+        assert "iof" in response.data
         assert isinstance(response.data["total_paid"], float)
         assert isinstance(response.data["remaining_balance"], float)
+        assert isinstance(response.data["iof"], float)
 
     def test_list_loans_does_not_include_total_paid_and_remaining_balance(
         self, client, loan_owner
@@ -239,6 +241,7 @@ class TestLoanViews(BaseTestCase):
         for loan_data in response.data["results"]:
             assert "total_paid" not in loan_data
             assert "remaining_balance" not in loan_data
+            assert "iof" not in loan_data
 
     def test_update_loan_critical_fields_with_payments_raises_error(
         self, client, loan_owner

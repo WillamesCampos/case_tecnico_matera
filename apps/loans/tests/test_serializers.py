@@ -28,6 +28,7 @@ def test_loan_serializer_returns_all_fields():
     assert "request_ip" in data
     assert "total_paid" in data
     assert "remaining_balance" in data
+    assert "iof" in data
     assert "created_at" in data
     assert "updated_at" in data
 
@@ -76,6 +77,29 @@ def test_loan_serializer_get_remaining_balance_calls_use_case(
     # Assert
     mock_use_case.execute.assert_called_once_with(loan)
     assert remaining_balance == 5000.0
+
+
+@pytest.mark.django_db
+@patch("apps.loans.serializers.IOFCalculatorService")
+def test_loan_serializer_get_iof_calls_service(mock_service_class):
+    """Test that get_iof calls IOFCalculatorService."""
+    # Arrange
+    loan = LoanFactory()
+    mock_service = MagicMock()
+    mock_service.calculate_total_iof.return_value = Decimal("185.60")
+    mock_service_class.return_value = mock_service
+
+    serializer = LoanSerializer(loan)
+    serializer.iof_calculator = mock_service
+
+    # Act
+    iof = serializer.get_iof(loan)
+
+    # Assert
+    # calculate_total_iof is called without reference_date (defaults to None)
+    mock_service.calculate_total_iof.assert_called_once()
+    assert mock_service.calculate_total_iof.call_args[0][0] == loan
+    assert iof == 185.60
 
 
 @pytest.mark.django_db
@@ -260,3 +284,4 @@ def test_loan_list_serializer_returns_limited_fields():
     assert "created_at" in data
     assert "total_paid" not in data
     assert "remaining_balance" not in data
+    assert "iof" not in data

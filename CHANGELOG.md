@@ -2,6 +2,19 @@
 
 ## [Unreleased]
 
+## [0.5.0] - Step 4 - IOF (Imposto sobre Operações Financeiras) Implementation
+
+### Added
+- **IOFCalculatorService**: Calculates IOF (fixed rate 0.38% + daily rate 0.0082% per day, capped at 3% per year)
+- **IOF integration**: IOF included in outstanding balance calculation
+- **IOF field**: Added `iof` field to `LoanSerializer` (retrieve only)
+- **IOF tests**: Comprehensive test coverage for IOF calculation service
+
+### Changed
+- `OutstandingBalanceCalculatorService`: Now includes IOF in balance calculation
+- Outstanding balance formula: `(Principal + Interest + IOF) - Total Paid`
+- Updated existing tests to account for IOF in calculations
+
 ## [0.4.0] - Step 3 - Business Rules & Comprehensive Testing
 
 ### Added

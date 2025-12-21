@@ -8,6 +8,7 @@ from apps.loans.models import Loan
 from apps.loans.services.interest_calculator_svc import (
     InterestCalculatorService,
 )
+from apps.loans.services.iof_calculator_svc import IOFCalculatorService
 from apps.loans.services.payment_aggregator_svc import PaymentAggregatorService
 
 
@@ -18,6 +19,7 @@ class OutstandingBalanceCalculatorService(BaseService):
         self,
         interest_calculator: InterestCalculatorService = None,
         payment_aggregator: PaymentAggregatorService = None,
+        iof_calculator: IOFCalculatorService = None,
     ):
         """
         Initialize the service with dependencies.
@@ -25,6 +27,7 @@ class OutstandingBalanceCalculatorService(BaseService):
         Args:
             interest_calculator: Service for calculating interest (injected)
             payment_aggregator: Service for aggregating payments (injected)
+            iof_calculator: Service for calculating IOF (injected)
         """
         super().__init__()
         self.interest_calculator = (
@@ -33,12 +36,13 @@ class OutstandingBalanceCalculatorService(BaseService):
         self.payment_aggregator = (
             payment_aggregator or PaymentAggregatorService()
         )
+        self.iof_calculator = iof_calculator or IOFCalculatorService()
 
     def calculate(self, loan: Loan, reference_date: date = None) -> Decimal:
         """
         Calculate the outstanding balance for a loan.
 
-        Formula: (Principal + Interest) - Total Paid
+        Formula: (Principal + Interest + IOF) - Total Paid
         If result is negative, returns 0 (no negative balance allowed).
 
         Args:
@@ -63,18 +67,24 @@ class OutstandingBalanceCalculatorService(BaseService):
             )
         )
 
+        # Calculate IOF (fixed + daily)
+        total_iof = self.iof_calculator.calculate_total_iof(
+            loan, reference_date
+        )
+
         # Get total paid
         total_paid = self.payment_aggregator.get_total_paid(loan)
 
-        # Calculate outstanding balance (minimum 0)
-        outstanding_balance = amount_with_interest - total_paid
+        # Calculate outstanding balance:
+        # (Principal + Interest + IOF) - Total Paid
+        outstanding_balance = amount_with_interest + total_iof - total_paid
         result = max(Decimal("0.00"), outstanding_balance)
 
         self.logger.debug(
             f"Outstanding balance calculated for loan {loan.uuid}: "
             f"amount={loan.amount}, months={months}, "
             f"amount_with_interest={amount_with_interest}, "
-            f"total_paid={total_paid}, result={result}"
+            f"total_iof={total_iof}, total_paid={total_paid}, result={result}"
         )
         return result
 
