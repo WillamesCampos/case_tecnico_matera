@@ -7,7 +7,10 @@ from apps.loans.serializers import LoanListSerializer, LoanSerializer
 class LoanViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         """Filter loans to only show those owned by the authenticated user."""
-        return Loan.objects.filter(owner=self.request.user)
+        queryset = Loan.objects.filter(owner=self.request.user)
+        # Prefetch payments to avoid N+1 queries when calculating totals
+        queryset = queryset.prefetch_related("payments")
+        return queryset
 
     def get_serializer_class(self):
         if self.action == "list":
