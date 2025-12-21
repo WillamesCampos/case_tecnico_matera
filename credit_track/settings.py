@@ -10,6 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 import os
+import sys
+import logging
 from datetime import timedelta
 from pathlib import Path
 import dotenv
@@ -110,6 +112,33 @@ TEMPLATES = [
         },
     },
 ]
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "stream": sys.stdout,
+            "formatter": "default",
+        },
+        "file": {
+            "class": "logging.FileHandler",
+            "filename": "logs/debug.log",
+            "formatter": "simple",
+        },
+    },
+    "loggers": {
+        "credit_track_logger": {
+            "handlers": ["console", "file"],
+            "level": "DEBUG" if DEBUG else "INFO",
+            "propagate": False,
+        },
+    },
+}
+
+logger = logging.getLogger('credit_track_logger')
+
 
 WSGI_APPLICATION = "credit_track.wsgi.application"
 
