@@ -248,7 +248,7 @@ class TestPaymentViews(BaseTestCase):
         url = reverse("payment-list")
         self.authenticate_user(client, loan_owner)
 
-        # Outstanding balance is ~10506.25 (2 months interest)
+        # Outstanding balance includes interest + IOF (~10593.45 with IOF)
         data = {
             "loan": loan.uuid,
             "payment_date": date(2024, 2, 15).strftime("%Y-%m-%d"),
@@ -351,7 +351,8 @@ class TestPaymentViews(BaseTestCase):
         url = reverse("payment-detail", kwargs={"pk": payment.uuid})
         self.authenticate_user(client, loan_owner)
 
-        # Outstanding balance after first payment is ~9506.25
+        # Outstanding balance after first payment includes interest + IOF
+        # (~8593.45 with IOF)
         update_data = {
             "payment_value": 20000,  # Exceeds outstanding balance
         }
