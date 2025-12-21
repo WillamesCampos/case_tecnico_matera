@@ -1,3 +1,5 @@
+from datetime import date
+
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models import Q
@@ -36,6 +38,7 @@ class Loan(BaseModel):
     )
 
     request_date = models.DateField(
+        default=date.today,
         db_index=True,
         verbose_name="Request Date",
         help_text="The date the loan was requested",

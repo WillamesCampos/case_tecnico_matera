@@ -1,7 +1,9 @@
 from datetime import date
+from decimal import Decimal
 
 import pytest
 from django.urls import reverse
+from freezegun import freeze_time
 
 from apps.core.tests.base.basetest import BaseTestCase
 from apps.core.tests.factories.loan import LoanFactory
@@ -133,3 +135,230 @@ class TestPaymentViews(BaseTestCase):
         # Assert
         assert response.status_code == 204
         assert not Payment.objects.filter(uuid=payment_uuid).exists()
+
+    def test_create_payment_without_authentication(self, client, loan):
+        # Arrange
+        url = reverse("payment-list")
+        data = {
+            "loan": loan.uuid,
+            "payment_date": date.today().strftime("%Y-%m-%d"),
+            "payment_value": 1000,
+        }
+
+        # Act
+        response = client.post(url, data=data)
+
+        # Assert
+        assert response.status_code == 401
+
+    @freeze_time("2024-03-01")
+    def test_create_payment_date_before_loan_date_raises_error(
+        self, client, loan_owner, loan
+    ):
+        # Arrange
+        url = reverse("payment-list")
+        self.authenticate_user(client, loan_owner)
+        loan.request_date = date(2024, 2, 1)
+        loan.save()
+
+        data = {
+            "loan": loan.uuid,
+            "payment_date": date(2024, 1, 15).strftime("%Y-%m-%d"),
+            "payment_value": 1000,
+        }
+
+        # Act
+        response = client.post(url, data=data)
+
+        # Assert
+        assert response.status_code == 400
+        assert "payment_date" in response.data
+
+    @freeze_time("2024-03-01")
+    def test_create_payment_date_future_raises_error(
+        self, client, loan_owner, loan
+    ):
+        # Arrange
+        url = reverse("payment-list")
+        self.authenticate_user(client, loan_owner)
+        future_date = date(2024, 3, 15)
+
+        data = {
+            "loan": loan.uuid,
+            "payment_date": future_date.strftime("%Y-%m-%d"),
+            "payment_value": 1000,
+        }
+
+        # Act
+        response = client.post(url, data=data)
+
+        # Assert
+        assert response.status_code == 400
+        assert "payment_date" in response.data
+
+    def test_create_payment_value_zero_raises_error(
+        self, client, loan_owner, loan
+    ):
+        # Arrange
+        url = reverse("payment-list")
+        self.authenticate_user(client, loan_owner)
+        data = {
+            "loan": loan.uuid,
+            "payment_date": date.today().strftime("%Y-%m-%d"),
+            "payment_value": 0,
+        }
+
+        # Act
+        response = client.post(url, data=data)
+
+        # Assert
+        assert response.status_code == 400
+        assert "payment_value" in response.data
+
+    def test_create_payment_value_negative_raises_error(
+        self, client, loan_owner, loan
+    ):
+        # Arrange
+        url = reverse("payment-list")
+        self.authenticate_user(client, loan_owner)
+        data = {
+            "loan": loan.uuid,
+            "payment_date": date.today().strftime("%Y-%m-%d"),
+            "payment_value": -100,
+        }
+
+        # Act
+        response = client.post(url, data=data)
+
+        # Assert
+        assert response.status_code == 400
+        assert "payment_value" in response.data
+
+    @freeze_time("2024-03-01")
+    def test_create_payment_value_exceeds_outstanding_balance_raises_error(
+        self, client, loan_owner
+    ):
+        # Arrange
+        loan = LoanFactory(
+            owner=loan_owner,
+            amount=Decimal("10000.00"),
+            interest_rate=Decimal("2.5"),
+            request_date=date(2024, 1, 1),
+        )
+        url = reverse("payment-list")
+        self.authenticate_user(client, loan_owner)
+
+        # Outstanding balance is ~10506.25 (2 months interest)
+        data = {
+            "loan": loan.uuid,
+            "payment_date": date(2024, 2, 15).strftime("%Y-%m-%d"),
+            "payment_value": 20000,  # Exceeds outstanding balance
+        }
+
+        # Act
+        response = client.post(url, data=data)
+
+        # Assert
+        assert response.status_code == 400
+        assert "payment_value" in response.data
+
+    def test_create_payment_for_other_user_loan_raises_error(
+        self, client, loan_owner
+    ):
+        # Arrange
+        other_user = UserFactory()
+        other_loan = LoanFactory(owner=other_user)
+        url = reverse("payment-list")
+        self.authenticate_user(client, loan_owner)
+
+        data = {
+            "loan": other_loan.uuid,
+            "payment_date": date.today().strftime("%Y-%m-%d"),
+            "payment_value": 1000,
+        }
+
+        # Act
+        response = client.post(url, data=data)
+
+        # Assert
+        assert response.status_code == 400
+        assert "loan" in response.data
+
+    def test_retrieve_payment_from_other_user_returns_404(
+        self, client, loan_owner
+    ):
+        # Arrange
+        other_user = UserFactory()
+        other_loan = LoanFactory(owner=other_user)
+        payment = PaymentFactory(loan=other_loan)
+        url = reverse("payment-detail", kwargs={"pk": payment.uuid})
+        self.authenticate_user(client, loan_owner)
+
+        # Act
+        response = client.get(url)
+
+        # Assert
+        assert response.status_code == 404
+
+    def test_update_payment_from_other_user_returns_404(
+        self, client, loan_owner
+    ):
+        # Arrange
+        other_user = UserFactory()
+        other_loan = LoanFactory(owner=other_user)
+        payment = PaymentFactory(loan=other_loan)
+        url = reverse("payment-detail", kwargs={"pk": payment.uuid})
+        self.authenticate_user(client, loan_owner)
+
+        update_data = {
+            "payment_value": 2000,
+        }
+
+        # Act
+        response = client.patch(url, data=update_data)
+
+        # Assert
+        assert response.status_code == 404
+
+    def test_delete_payment_from_other_user_returns_404(
+        self, client, loan_owner
+    ):
+        # Arrange
+        other_user = UserFactory()
+        other_loan = LoanFactory(owner=other_user)
+        payment = PaymentFactory(loan=other_loan)
+        url = reverse("payment-detail", kwargs={"pk": payment.uuid})
+        self.authenticate_user(client, loan_owner)
+
+        # Act
+        response = client.delete(url)
+
+        # Assert
+        assert response.status_code == 404
+
+    @freeze_time("2024-03-01")
+    def test_update_payment_value_exceeds_outstanding_balance_raises_error(
+        self, client, loan_owner
+    ):
+        # Arrange
+        loan = LoanFactory(
+            owner=loan_owner,
+            amount=Decimal("10000.00"),
+            interest_rate=Decimal("2.5"),
+            request_date=date(2024, 1, 1),
+        )
+        payment = PaymentFactory(loan=loan, payment_value=Decimal("1000.00"))
+        url = reverse("payment-detail", kwargs={"pk": payment.uuid})
+        self.authenticate_user(client, loan_owner)
+
+        # Outstanding balance after first payment is ~9506.25
+        update_data = {
+            "payment_value": 20000,  # Exceeds outstanding balance
+        }
+
+        # Act
+        response = client.patch(url, data=update_data)
+
+        # Assert
+        assert response.status_code == 400
+        assert "payment_value" in response.data
