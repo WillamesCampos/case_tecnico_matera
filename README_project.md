@@ -1,3 +1,9 @@
+<div align="center">
+  <img width="250" height="250" alt="Credit Track Logo" src="https://github.com/user-attachments/assets/235eeaf6-a4d0-4bc0-97a3-4e2cbcfe1380" />
+</div>
+
+
+
 # Credit Track API
 
 API REST desenvolvida com Django e Django REST Framework para gerenciamento de empréstimos e pagamentos, com cálculo automático de saldo devedor considerando juros compostos e IOF.
