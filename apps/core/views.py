@@ -23,7 +23,7 @@ class HealthCheckView(APIView):
                         "type": "string",
                         "example": "credit-track",
                     },
-                    "version": {"type": "string", "example": "0.6.2"},
+                    "version": {"type": "string", "example": "0.6.3"},
                     "message": {"type": "string", "example": "API is running"},
                     "status": {"type": "string", "example": "ok"},
                 },
@@ -33,7 +33,7 @@ class HealthCheckView(APIView):
     def get(self, request):
         data = {
             "project_name": "credit-track",
-            "version": "0.6.2",
+            "version": "0.6.3",
             "message": "API is running",
             "status": "ok",
         }

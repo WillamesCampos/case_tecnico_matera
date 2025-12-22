@@ -1,6 +1,7 @@
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import viewsets
 
+from apps.loans.filters import LoanFilter
 from apps.loans.models import Loan
 from apps.loans.serializers import LoanListSerializer, LoanSerializer
 
@@ -10,7 +11,10 @@ from apps.loans.serializers import LoanListSerializer, LoanSerializer
         tags=["Loans"],
         summary="Listar empréstimos",
         description=(
-            "Retorna uma lista paginada de empréstimos do usuário autenticado."
+            "Retorna uma lista paginada de empréstimos do usuário "
+            "autenticado. Suporta filtros por data, valor, taxa de juros "
+            "e banco. Exemplos de filtros: "
+            "`?request_date__gte=2024-01-01&amount__gte=1000&bank=Banco`"
         ),
     ),
     create=extend_schema(
@@ -76,6 +80,16 @@ from apps.loans.serializers import LoanListSerializer, LoanSerializer
     ),
 )
 class LoanViewSet(viewsets.ModelViewSet):
+    filterset_class = LoanFilter
+    search_fields = ["bank", "uuid"]
+    ordering_fields = [
+        "request_date",
+        "amount",
+        "interest_rate",
+        "created_at",
+    ]
+    ordering = ["-request_date"]
+
     def get_queryset(self):
         """Filter loans to only show those owned by the authenticated user."""
         queryset = Loan.objects.filter(owner=self.request.user)

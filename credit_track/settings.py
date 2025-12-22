@@ -49,6 +49,7 @@ THIRD_PARTY_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
     "drf_spectacular",
+    "django_filters",
 ]
 
 PROJECT_APPS = [
@@ -82,6 +83,11 @@ REST_FRAMEWORK = {
     ],
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 20,
+    "DEFAULT_FILTER_BACKENDS": [
+        "django_filters.rest_framework.DjangoFilterBackend",
+        "rest_framework.filters.SearchFilter",
+        "rest_framework.filters.OrderingFilter",
+    ],
 }
 
 SIMPLE_JWT = {
@@ -116,7 +122,7 @@ SPECTACULAR_SETTINGS = {
     
     Fórmula: `Saldo Devedor = (Principal + Juros Compostos + IOF) - Total Pago`
     """,
-    "VERSION": "0.6.2",
+    "VERSION": "0.6.3",
     "SERVE_INCLUDE_SCHEMA": False,
     "COMPONENT_SPLIT_REQUEST": True,
     "SCHEMA_PATH_PREFIX": "/api/v1/",

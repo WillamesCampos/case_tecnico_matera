@@ -2,6 +2,19 @@
 
 ## [Unreleased]
 
+## [0.6.3] - API Filters
+
+### Added
+- **django-filter**: Adicionado pacote `django-filter` para filtros avançados nos endpoints
+- **LoanFilter**: Filtros para endpoint de empréstimos (data, valor, taxa de juros, banco, busca)
+- **PaymentFilter**: Filtros para endpoint de pagamentos (empréstimo, data, valor, busca)
+- **SearchFilter e OrderingFilter**: Busca e ordenação configuradas nos ViewSets
+
+### Changed
+- **LoanViewSet**: Adicionados `filterset_class`, `search_fields`, `ordering_fields` e `ordering`
+- **PaymentViewSet**: Adicionados `filterset_class`, `search_fields`, `ordering_fields` e `ordering`
+- **REST_FRAMEWORK settings**: Configurado `DEFAULT_FILTER_BACKENDS` com DjangoFilterBackend, SearchFilter e OrderingFilter
+
 ## [0.6.2] - Django Admin Interface
 
 ### Added

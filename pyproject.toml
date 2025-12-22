@@ -1,6 +1,6 @@
 [project]
 name = "credit-track"
-version = "0.6.2"
+version = "0.6.3"
 description = "Loan and payment tracking API with outstanding balance calculation."
 authors = [
     {name = "WillamesCampos",email = "willwjccampos@gmail.com"}
@@ -16,7 +16,8 @@ dependencies = [
     "python-dateutil (>=2.8.2,<3.0.0)",
     "freezegun (>=1.5.5,<2.0.0)",
     "psycopg2-binary (>=2.9.9,<3.0.0)",
-    "drf-spectacular (>=0.29.0,<0.30.0)"
+    "drf-spectacular (>=0.29.0,<0.30.0)",
+    "django-filter (>=24.3,<25.0)"
 ]
 
 
