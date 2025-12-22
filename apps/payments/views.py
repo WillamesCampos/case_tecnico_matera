@@ -1,6 +1,7 @@
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import viewsets
 
+from apps.payments.filters import PaymentFilter
 from apps.payments.models import Payment
 from apps.payments.serializers import PaymentSerializer
 
@@ -11,7 +12,9 @@ from apps.payments.serializers import PaymentSerializer
         summary="Listar pagamentos",
         description=(
             "Retorna uma lista paginada de pagamentos dos empréstimos "
-            "do usuário autenticado."
+            "do usuário autenticado. Suporta filtros por empréstimo, "
+            "data e valor. Exemplos de filtros: "
+            "`?loan=<uuid>&payment_date__gte=2024-01-01&payment_value__gte=100`"
         ),
     ),
     create=extend_schema(
@@ -74,6 +77,14 @@ from apps.payments.serializers import PaymentSerializer
 )
 class PaymentViewSet(viewsets.ModelViewSet):
     serializer_class = PaymentSerializer
+    filterset_class = PaymentFilter
+    search_fields = ["uuid", "loan__uuid"]
+    ordering_fields = [
+        "payment_date",
+        "payment_value",
+        "created_at",
+    ]
+    ordering = ["-payment_date"]
 
     def get_queryset(self):
         return Payment.objects.filter(loan__owner=self.request.user)

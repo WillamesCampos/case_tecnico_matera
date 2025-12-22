@@ -28,12 +28,5 @@ class PaymentFactory(factory.django.DjangoModelFactory):
     created_by = factory.LazyAttribute(lambda obj: obj.loan.owner)
     updated_by = factory.LazyAttribute(lambda obj: obj.loan.owner)
 
-    @factory.post_generation
-    def ensure_payment_date_after_loan(self, create, extracted, **kwargs):
-        """Ensure payment_date is not before loan.request_date."""
-        if create and self.payment_date < self.loan.request_date:
-            self.payment_date = self.loan.request_date
-            self.save()
-
     class Meta:
         model = Payment
