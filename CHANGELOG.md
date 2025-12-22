@@ -2,6 +2,20 @@
 
 ## [Unreleased]
 
+## [0.6.0] - Docker & PostgreSQL Configuration
+
+### Added
+- **Dockerfile**: Containerização da aplicação Django
+- **docker-compose.yaml**: Orquestração com PostgreSQL e Django
+- **Database configuration**: Suporte a PostgreSQL via variáveis de ambiente
+- **Environment variables**: Configuração de banco de dados no `.env_example`
+- **psycopg2-binary**: Driver PostgreSQL adicionado às dependências
+- **.dockerignore**: Arquivos ignorados no build do Docker
+
+### Changed
+- `settings.py`: DATABASES agora usa PostgreSQL quando `POSTGRES_HOST` está definido, fallback para SQLite
+- `.env_example`: Adicionadas variáveis de ambiente do PostgreSQL (POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_HOST, POSTGRES_PORT)
+
 ## [0.5.0] - Step 4 - IOF (Imposto sobre Operações Financeiras) Implementation
 
 ### Added

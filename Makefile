@@ -34,3 +34,20 @@ lint:
 test:
 	python -m pytest -vvv
 	coverage html
+
+# docker
+
+up:
+	cd infrastructure && docker compose up -d
+
+upbuild:
+	cd infrastructure && docker compose up --build -d
+
+docker-logs:
+	cd infrastructure && docker compose logs -f web
+
+docker-down:
+	cd infrastructure && docker compose down
+
+docker-ps:
+	cd infrastructure && docker compose ps
