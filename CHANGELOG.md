@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+## [0.6.2] - Django Admin Interface
+
+### Added
+- **LoanAdmin**: Django admin interface for Loan model with list display, filters, search, and fieldsets
+- **PaymentAdmin**: Django admin interface for Payment model with list display, filters, search, and fieldsets
+- **Admin Features**: Date hierarchy, raw_id_fields for ForeignKeys, readonly fields for audit fields
+
 ## [0.6.1] - API Documentation (drf-spectacular)
 
 ### Added
