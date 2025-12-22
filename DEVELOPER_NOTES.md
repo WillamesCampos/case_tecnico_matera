@@ -137,3 +137,96 @@ Todos os serviços e use cases herdam de classes base (`BaseService`, `BaseUseCa
 - Serviços logam cálculos importantes (juros, IOF, saldo devedor)
 - Use cases logam início e fim de execução
 - Mensagens incluem contexto suficiente para rastreamento
+
+## Roadmap e Funcionalidades Futuras
+
+Esta seção do documento lista funcionalidades planejadas para expansão do sistema, organizadas por área de impacto.
+
+### Gestão de Empréstimos
+
+**Status do Empréstimo:**
+- Adicionar campo `status` no modelo `Loan` com choices (ex: `PENDING`, `ACTIVE`, `PAID_OFF`, `EXPIRED`, `DEFAULTED`)
+- Implementar transições de status baseadas em regras de negócio (pagamento completo, expiração, etc.)
+- Atualizar serializers e views para refletir o status atual
+
+**Integração com um serviço de Bureau**
+ - O intuito é fazer análise de crédito antes de liberar empréstimo
+ - Esse bureau pode ser uma aplicação Fast API separada, que pode receber um evento dessa aplicação django
+ usando Kafka, RabbitMQ ou Celery (ainda estou aprofundando em sistemas distribuidos com kafka)
+
+**Expiração de Empréstimos:**
+- Adicionar campo `expiration_date` no modelo `Loan` (default: 12 meses após `request_date`)
+- Implementar validações para impedir pagamentos após expiração
+- Considerar impacto no cálculo de juros e IOF após expiração
+
+### Seguros (Insurance)
+
+**App de Seguros:**
+- Criar novo app `apps/insurance` para gerenciar seguros de empréstimos
+- Modelo `Insurance` com relacionamento com `Loan` (ForeignKey)
+- Campos: tipo de seguro, valor segurado, prêmio, data de contratação, vigência
+
+**Condições de Contratação:**
+- Implementar regras de negócio para determinar elegibilidade (ex: valor mínimo do empréstimo, perfil do cliente)
+- Validações no serializer para garantir que condições sejam atendidas
+- Integração com cálculo de saldo devedor (incluir prêmio do seguro)
+
+### Notificações por Email
+
+**Configuração de Email:**
+- Configurar `django.core.mail` com SMTP (Gmail, SendGrid, AWS SES, etc.)
+- Variáveis de ambiente para credenciais de email
+- Templates de email (HTML/texto) para diferentes tipos de notificação
+
+**Eventos de Notificação:**
+- **Criação de empréstimo**: Email de confirmação com detalhes do empréstimo
+- **Pagamento realizado**: Confirmação de pagamento com saldo atualizado
+- **Lembrete de pagamento**: Notificações 10 dias e 1 dia antes do vencimento
+- **Expiração próxima**: Alerta quando empréstimo está próximo de expirar (ex: 7 dias antes)
+
+**Implementação:**
+- Usar Django signals (`post_save`, `pre_save`) ou tasks assíncronas (Celery) para envio
+- Evitar envio síncrono em views para não bloquear resposta HTTP
+- Logging de emails enviados para auditoria
+
+### Geração de Documentos (PDF)
+
+**Histórico de Pagamentos:**
+- Endpoint `GET /api/v1/loans/{uuid}/payment-history-pdf/` que gera PDF com:
+  - Lista cronológica de todos os pagamentos
+  - Totais pagos por período
+  - Saldo devedor atual
+  - Gráficos/visualizações (opcional)
+
+**"Fatura do Empréstimo" :**
+- Endpoint `GET /api/v1/loans/{uuid}/invoice-pdf/` que gera PDF no formato de fatura:
+  - Resumo do empréstimo (valor, taxa, período)
+  - Detalhamento de juros e IOF
+  - Lista de pagamentos do período
+  - Saldo devedor e próximo vencimento
+
+**Tecnologias Sugeridas:**
+- `reportlab` ou `weasyprint` para geração de PDF
+- Templates reutilizáveis para formatação consistente
+
+### Considerações Técnicas
+
+**Arquitetura:**
+- Manter separação de responsabilidades (services, use cases)
+- Criar novos serviços para lógica de negócio específica (ex: `InsuranceEligibilityService`, `EmailNotificationService`)
+- Usar tasks assíncronas (Celery) para operações pesadas (geração de PDF, envio de emails)
+
+**Testes:**
+- Testes unitários para novos serviços e use cases
+- Testes de integração para fluxos completos (ex: criação de empréstimo → envio de email)
+- Mocks para serviços externos (SMTP, geração de PDF)
+
+**Performance:**
+- Indexação adequada no banco de dados para queries de status e expiração
+- Paginação em listagens de histórico
+- Rate Limiting para proteger a API (necessário estudar o contexto e boas práticas de aplicação em projetos django)
+
+**Settings do Django:**
+ - A medida que o projeto evoluir, vai se tornar mais necessário deixar organizado o settings.py,
+com isso separar em pequenos arquivos e transformar o arquivo settings em um módulo chamado settings onde
+cada arquivo desse módulo é uma configuração de settings do django, para organização e melhor identificação no projeto.
