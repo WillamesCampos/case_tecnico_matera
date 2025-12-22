@@ -31,7 +31,7 @@ jobs:
       POSTGRES_PASSWORD: credit_track_password
       POSTGRES_HOST: localhost
       POSTGRES_PORT: 5432
-      DJANGO_SETTINGS_MODULE: credit_track.settings
+      DJANGO_SETTINGS_MODULE: credit_track.test_settings
 
     steps:
       - name: Code Checkout
