@@ -12,7 +12,7 @@ def test_health_check(client):
     assert response.status_code == 200
     assert response.json() == {
         "project_name": "credit-track",
-        "version": "0.1.0",
+        "version": "0.6.1",
         "message": "API is running",
         "status": "ok",
     }
