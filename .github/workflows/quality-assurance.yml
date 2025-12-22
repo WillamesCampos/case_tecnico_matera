@@ -1,0 +1,57 @@
+name: Quality Assurance
+run-name: Pushing branch ${{ github.branch }} into ${{ github.repository}} by ${{ github.actor }}
+on:
+  pull_request:
+    branches:
+      - master
+  workflow_call:
+jobs:
+  quality-assurance:
+    name: Quality Assurance
+    runs-on: ubuntu-latest
+    environment: CREDIT_TRACK_DEVELOPMENT
+
+    services:
+      db:
+        image: postgres:latest
+        env:
+          POSTGRES_DB: credit_track_db
+          POSTGRES_PASSWORD: credit_track_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+      POSTGRES_DB: credit_track_db
+      POSTGRES_USER: credit_track_user
+      POSTGRES_PASSWORD: credit_track_password
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: 5432
+      DJANGO_SETTINGS_MODULE: credit_track.test_settings
+
+    steps:
+      - name: Code Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.13
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install poetry --no-cache-dir
+          poetry config virtualenvs.create false
+          poetry install --no-interaction --no-root
+
+      - name: PEP8 Analysis
+        run: make lint
+
+      - name: Django Tests
+        run: make test
