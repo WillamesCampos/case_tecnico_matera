@@ -91,11 +91,76 @@ SIMPLE_JWT = {
 
 SPECTACULAR_SETTINGS = {
     "TITLE": "Credit Track API",
-    "DESCRIPTION": "API for managing credit track",
-    "VERSION": "0.1.0",
+    "DESCRIPTION": """
+    API REST para gerenciamento de empréstimos e pagamentos.
+    
+    ## Funcionalidades
+    
+    - **Empréstimos**: Criação, listagem e visualização de empréstimos
+    - **Pagamentos**: Registro e gerenciamento de pagamentos de empréstimos
+    - **Saldo Devedor**: Cálculo automático do saldo devedor considerando juros compostos mensais e IOF
+    - **Autenticação**: Autenticação via JWT (JSON Web Token)
+    
+    ## Autenticação
+    
+    Para utilizar a API, é necessário obter um token JWT através do endpoint `/api/v1/auth/token/`.
+    O token deve ser incluído no header `Authorization: Bearer <token>` em todas as requisições.
+    
+    ## Cálculo do Saldo Devedor
+    
+    O saldo devedor é calculado considerando:
+    - Valor principal do empréstimo
+    - Juros compostos mensais
+    - IOF (Imposto sobre Operações Financeiras)
+    - Total de pagamentos realizados
+    
+    Fórmula: `Saldo Devedor = (Principal + Juros Compostos + IOF) - Total Pago`
+    """,
+    "VERSION": "0.6.0",
     "SERVE_INCLUDE_SCHEMA": False,
     "COMPONENT_SPLIT_REQUEST": True,
     "SCHEMA_PATH_PREFIX": "/api/v1/",
+    "TAGS": [
+        {"name": "Authentication", "description": "Endpoints de autenticação JWT"},
+        {"name": "Loans", "description": "Gerenciamento de empréstimos"},
+        {"name": "Payments", "description": "Gerenciamento de pagamentos"},
+        {"name": "Health", "description": "Verificação de saúde da API"},
+    ],
+    "SECURITY": [
+        {
+            "bearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT",
+            }
+        }
+    ],
+    "APPEND_COMPONENTS": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT",
+            }
+        }
+    },
+    "SERVE_PERMISSIONS": ["rest_framework.permissions.AllowAny"],
+    "SERVE_AUTHENTICATION": None,
+    "SWAGGER_UI_SETTINGS": {
+        "deepLinking": True,
+        "displayOperationId": False,
+        "defaultModelsExpandDepth": 1,
+        "defaultModelExpandDepth": 1,
+        "docExpansion": "list",
+        "filter": True,
+        "showExtensions": True,
+        "showCommonExtensions": True,
+    },
+    "REDOC_UI_SETTINGS": {
+        "hideDownloadButton": False,
+        "expandResponses": "200,201",
+        "pathInMiddlePanel": True,
+    },
 }
 
 TEMPLATES = [
@@ -113,6 +178,15 @@ TEMPLATES = [
     },
 ]
 
+# Configure logging handlers
+logging_handlers = {
+    "console": {
+        "class": "logging.StreamHandler",
+        "stream": sys.stdout,
+        "formatter": "default",
+    },
+}
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -125,21 +199,10 @@ LOGGING = {
             "format": "%(levelname)s %(message)s",
         },
     },
-    "handlers": {
-        "console": {
-            "class": "logging.StreamHandler",
-            "stream": sys.stdout,
-            "formatter": "default",
-        },
-        "file": {
-            "class": "logging.FileHandler",
-            "filename": "logs/debug.log",
-            "formatter": "simple",
-        },
-    },
+    "handlers": logging_handlers,
     "loggers": {
         "credit_track_logger": {
-            "handlers": ["console", "file"],
+            "handlers": list(logging_handlers.keys()),
             "level": "DEBUG" if DEBUG else "INFO",
             "propagate": False,
         },
@@ -155,12 +218,25 @@ WSGI_APPLICATION = "credit_track.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+# Use PostgreSQL if POSTGRES_HOST is set, otherwise fallback to SQLite
+if os.environ.get("POSTGRES_HOST"):
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": os.environ.get("POSTGRES_DB", "credit_track_db"),
+            "USER": os.environ.get("POSTGRES_USER", "credit_track_user"),
+            "PASSWORD": os.environ.get("POSTGRES_PASSWORD", "credit_track_password"),
+            "HOST": os.environ.get("POSTGRES_HOST", "localhost"),
+            "PORT": os.environ.get("POSTGRES_PORT", "5432"),
+        }
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
 
 
 # Password validation

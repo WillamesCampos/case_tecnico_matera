@@ -15,10 +15,31 @@ from apps.loans.use_cases.calculate_loan_outstanding_balance_use_case import (
 
 
 class LoanSerializer(serializers.ModelSerializer, AuditSerializerMixin):
-    owner = serializers.HiddenField(default=serializers.CurrentUserDefault())
-    total_paid = serializers.SerializerMethodField()
-    remaining_balance = serializers.SerializerMethodField()
-    iof = serializers.SerializerMethodField()
+    owner = serializers.HiddenField(
+        default=serializers.CurrentUserDefault(),
+        help_text=(
+            "Proprietário do empréstimo (definido automaticamente "
+            "como o usuário autenticado)"
+        ),
+    )
+    total_paid = serializers.SerializerMethodField(
+        help_text=(
+            "Total já pago do empréstimo (soma de todos os "
+            "pagamentos realizados)"
+        )
+    )
+    remaining_balance = serializers.SerializerMethodField(
+        help_text=(
+            "Saldo devedor atual (Principal + Juros Compostos + "
+            "IOF - Total Pago)"
+        )
+    )
+    iof = serializers.SerializerMethodField(
+        help_text=(
+            "Valor total do IOF (Imposto sobre Operações "
+            "Financeiras) calculado sobre o valor nominal"
+        )
+    )
 
     critical_fields = ["owner", "bank", "amount", "interest_rate"]
 
