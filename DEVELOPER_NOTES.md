@@ -171,6 +171,12 @@ Esta seção do documento lista funcionalidades planejadas para expansão do sis
 - Validações no serializer para garantir que condições sejam atendidas
 - Integração com cálculo de saldo devedor (incluir prêmio do seguro)
 
+### Criação de Perfis de usuário e grupos de permissão
+
+- Criar perfis de usuário (podem ser choices no model, enums, fixtures...)
+- Cada perfil estará associado a um grupo de Permissão
+- O django já fornece nativamente suporte para permissões (as entidades já têm por padrão) e grupos, falta apenas gerenciar
+
 ### Notificações por Email
 
 **Configuração de Email:**
