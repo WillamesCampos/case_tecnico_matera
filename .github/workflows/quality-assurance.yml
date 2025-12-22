@@ -9,6 +9,7 @@ jobs:
   quality-assurance:
     name: Quality Assurance
     runs-on: ubuntu-latest
+    environment: CREDIT_TRACK_DEVELOPMENT
 
     services:
       db:
