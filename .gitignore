@@ -2,8 +2,7 @@ db.sqlite3
 .coverage
 
 PLAN.md
-DEVELOPER_NOTES.md
-IOF_CALCULATION_RULES.md
+REQUIREMENTS_CHECKLIST.md
 
 htmlcov/
 .env
