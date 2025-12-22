@@ -2,6 +2,21 @@
 
 ## [Unreleased]
 
+## [0.6.1] - API Documentation (drf-spectacular)
+
+### Added
+- **API Documentation**: Enhanced OpenAPI/Swagger documentation with drf-spectacular
+- **View Documentation**: Added `extend_schema_view` decorators to all ViewSets with detailed descriptions
+- **Field Documentation**: Added `help_text` to serializer fields for better API documentation
+- **API Tags**: Organized endpoints by tags (Authentication, Loans, Payments, Health)
+- **Security Schema**: Configured JWT Bearer authentication in OpenAPI schema
+
+### Changed
+- **SPECTACULAR_SETTINGS**: Enhanced configuration with detailed API description, tags, and UI settings
+- **HealthCheckView**: Added OpenAPI schema documentation
+- **LoanViewSet**: Documented all actions (list, create, retrieve, update, partial_update, destroy)
+- **PaymentViewSet**: Documented all actions with validation rules and business logic descriptions
+
 ## [0.6.0] - Docker & PostgreSQL Configuration
 
 ### Added

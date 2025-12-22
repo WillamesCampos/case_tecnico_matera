@@ -116,7 +116,7 @@ SPECTACULAR_SETTINGS = {
     
     Fórmula: `Saldo Devedor = (Principal + Juros Compostos + IOF) - Total Pago`
     """,
-    "VERSION": "0.6.0",
+    "VERSION": "0.6.1",
     "SERVE_INCLUDE_SCHEMA": False,
     "COMPONENT_SPLIT_REQUEST": True,
     "SCHEMA_PATH_PREFIX": "/api/v1/",
